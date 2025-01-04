@@ -94,7 +94,7 @@ install_filebrowser() {
 }
 
 # 显示主菜单
-echo "                                                                                                          
+cat << 'EOF'
  .oOOOo.  o      O    Oo     .oOOOo.           Oo          Oo      oO    Oo    o.     O 
 .O     o  O      o   o  O   .O     o.         o  O         O O    o o   o  O   Oo     o 
 o         o      O  O    o  O       o        O    o        o  o  O  O  O    o  O O    O 
@@ -103,7 +103,7 @@ o         o      O o      O O       o       o      O       O        o o      O O
 O         O      o O      o o       O       O      o       o        O O      o o    O O 
 `o     .o o      o o      O `o     O'       o      O       o        O o      O o     Oo 
  `OoooO'  o      O O.     O  `OoooO'        O.     O       O        o O.     O O     `o 
-"
+EOF
 echo "欢迎使用安装脚本"
 echo "请选择安装方式："
 echo "1. 我啥都偷"
