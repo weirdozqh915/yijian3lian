@@ -95,6 +95,14 @@ install_filebrowser() {
 
 # 显示主菜单
 cat << 'EOF'
+
+
+
+
+
+
+
+
  .oOOOo.  o      O    Oo     .oOOOo.           Oo          Oo      oO    Oo    o.     O 
 .O     o  O      o   o  O   .O     o.         o  O         O O    o o   o  O   Oo     o 
 o         o      O  O    o  O       o        O    o        o  o  O  O  O    o  O O    O 
