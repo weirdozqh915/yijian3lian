@@ -2,7 +2,7 @@
 
 # 默认值设置
 DEFAULT_USERNAME="su1xiao"
-DEFAULT_PASSWORD="bDEN08FIEhb0wZ"
+DEFAULT_PASSWORD="su1xiao123"
 DEFAULT_QB_PORT=18080
 DEFAULT_FB_PORT=18082
 
@@ -36,10 +36,10 @@ read project_choice
 # 确认设置
 echo -e "\n您的设置如下："
 echo "VT版本: $([ "$project_choice" = "2" ] && echo "时光版" || echo "云飞版")"
-echo "用户名: ${USERNAME}"
-echo "密码: ${PASSWORD}"
 echo "qBittorrent 端口: ${QB_PORT}"
 echo "FileBrowser 端口: ${FB_PORT}"
+echo "QB用户名: ${USERNAME}"
+echo "QB密码: ${PASSWORD}"
 echo -n "确认继续安装？[Y/n] "
 read confirm
 if [[ ${confirm,,} == "n" ]]; then
@@ -109,13 +109,34 @@ systemctl disable qbittorrent-nox@${USERNAME}
 # 调整文件系统
 tune2fs -m 1 $(df -h / | awk 'NR==2 {print $1}')
 
+# 确保 qBittorrent 服务已停止
+systemctl stop qbittorrent-nox@${USERNAME}
+
+# 等待确保配置文件存在
+sleep 5
+
 # 修改 qBittorrent 配置
 QB_CONFIG="${HOME_DIR}/.config/qBittorrent/qBittorrent.conf"
-sed -i "s/WebUI\\Port=[0-9]*/WebUI\\Port=${QB_PORT}/" ${QB_CONFIG}
-sed -i 's/Connection\\PortRangeMin=[0-9]*/Connection\\PortRangeMin=45000/' ${QB_CONFIG}
-sed -i '/\[Preferences\]/a General\\Locale=zh' ${QB_CONFIG}
-sed -i '/\[Preferences\]/a Downloads\\PreAllocation=false' ${QB_CONFIG}
-sed -i '/\[Preferences\]/a WebUI\\CSRFProtection=false' ${QB_CONFIG}
+
+# 检查配置文件是否存在
+if [ ! -f "${QB_CONFIG}" ]; then
+    echo "等待配置文件生成..."
+    sleep 10
+fi
+
+# 使用更可靠的方式修改配置
+sed -i 's|WebUI\\\Port=.*|WebUI\\\Port='"${QB_PORT}"'|' "${QB_CONFIG}"
+sed -i 's|Connection\\\PortRangeMin=.*|Connection\\\PortRangeMin=45000|' "${QB_CONFIG}"
+sed -i '/\[Preferences\]/a General\\\Locale=zh' "${QB_CONFIG}"
+sed -i '/\[Preferences\]/a Downloads\\\PreAllocation=false' "${QB_CONFIG}"
+sed -i '/\[Preferences\]/a WebUI\\\CSRFProtection=false' "${QB_CONFIG}"
+
+# 显示修改后的配置
+echo "当前 WebUI 端口设置："
+grep "WebUI\\\Port" "${QB_CONFIG}"
+
+# 重启 qBittorrent 服务
+systemctl start qbittorrent-nox@${USERNAME}
 
 # 启动 Docker 容器
 echo "启动 Docker 容器..."
@@ -144,17 +165,17 @@ docker run -d \
     80x86/filebrowser
 
 # 启动 unpacking 容器
-docker run -d \
-    --name=unpacking \
-    --net=host \
-    --restart=unless-stopped \
-    -v ${HOME_DIR}/cb:/home/user \
-    -e username=${USERNAME} \
-    -e password=${USERNAME}233 \
-    -e rate=0.6 \
-    -e time=5 \
-    -e url=http://127.0.0.1:${QB_PORT} \
-    ppw111/ptchange:v0.3
+# docker run -d \
+#     --name=unpacking \
+#     --net=host \
+#     --restart=unless-stopped \
+#     -v ${HOME_DIR}/cb:/home/user \
+#     -e username=${USERNAME} \
+#     -e password=${USERNAME}233 \
+#     -e rate=0.6 \
+#     -e time=5 \
+#     -e url=http://127.0.0.1:${QB_PORT} \
+#     ppw111/ptchange:v0.3
 
 # 重启所有容器
 docker restart $(docker ps -q)
