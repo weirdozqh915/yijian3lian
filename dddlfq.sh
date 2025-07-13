@@ -55,8 +55,9 @@ install_filebrowser() {
         -e FB_AUTH_SERVER_ADDR=127.0.0.1 \
         -p ${FB_PORT}:${FB_PORT} \
         -v ${HOME_DIR}/fb/config:/config \
-        -v /home/downloads:/myfiles \
+        -v /:/myfiles \
         --mount type=tmpfs,destination=/tmp \
+        --privileged \
         80x86/filebrowser
 }
 
@@ -74,6 +75,7 @@ install_clouddrive2() {
         -e CLOUDDRIVE_HOME=/Config \
         -v /123:/CloudNAS:shared \
         -v /cd2:/Config \
+        -v /downloads:/downloads \
         --device=/dev/fuse:/dev/fuse \
         --pid=host \
         --privileged \
